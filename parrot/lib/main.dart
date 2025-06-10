@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
 import 'package:provider/provider.dart';
+import 'theme.dart';
 
 class MyAppState extends ChangeNotifier {
+  String get someText =>
+      "hello world"; // But this would be the api call/result?
   var current = WordPair.random();
 
   void nextWord() {
@@ -13,7 +16,10 @@ class MyAppState extends ChangeNotifier {
 
 void main() {
   runApp(
-    ChangeNotifierProvider(create: (context) => MyAppState(), child: MyApp()),
+    ChangeNotifierProvider(
+      create: (context) => MyAppState(),
+      child: const MyApp(),
+    ),
   );
 }
 
@@ -24,9 +30,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-      ),
+      theme: appTheme,
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
@@ -44,8 +48,9 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-    var pair = appState.current;
+    final appState = context.watch<MyAppState>();
+    final pair = appState.current;
+    final someText = appState.someText;
 
     return Scaffold(
       appBar: AppBar(
@@ -56,14 +61,14 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            BigCard(pair: pair),
+            BigCard(pair: pair, someText: someText),
             ElevatedButton(
               onPressed: () {
                 setState(() {
                   appState.current = WordPair.random();
                 });
               },
-              child: Text('Next'),
+              child: const Text('Next'),
             ),
           ],
         ),
@@ -73,18 +78,26 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 
 class BigCard extends StatelessWidget {
-  const BigCard({super.key, required this.pair});
+  const BigCard({super.key, required this.pair, required this.someText});
+
   final WordPair pair;
+  final String someText;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Card(
-      color: theme.colorScheme.primary,
+      color: theme.cardTheme.color,
       child: Padding(
-        padding: const EdgeInsets.all(30.0),
-        child: Text(pair.asLowerCase),
+        padding: const EdgeInsets.all(10.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Column(children: [Text(pair.asLowerCase)]),
+            Column(children: [Text(someText)]),
+          ],
+        ),
       ),
     );
   }
